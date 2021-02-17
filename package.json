@@ -1,0 +1,29 @@
+{
+  "name": "swift-facebook-google",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "node ./src/server.js",
+    "dev": "nodemon ./src/server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/gustavocardoso/swift-facebook-spreadsheet.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/gustavocardoso/swift-facebook-spreadsheet/issues"
+  },
+  "homepage": "https://github.com/gustavocardoso/swift-facebook-spreadsheet#readme",
+  "dependencies": {
+    "axios": "^0.21.1",
+    "cors": "^2.8.5",
+    "dotenv": "^8.2.0",
+    "express": "^4.17.1",
+    "express-async-errors": "^3.1.1",
+    "google-spreadsheet": "^3.1.15"
+  }
+}
