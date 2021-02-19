@@ -5,7 +5,7 @@ module.exports = {
   async index(req, res, next) {
     try {
       const { date_preset = 'today', limit = 10 } = req.query
-      const doc = new GoogleSpreadsheet('1T04AHrX1jMQo-f4LDNwiVg7JUq1SeVLA16s8eDoL1P0')
+      const doc = new GoogleSpreadsheet(`${process.env.GOOGLE_SPREADSHEET_ID}`)
 
       await doc.useServiceAccountAuth({
         client_email: process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL,
