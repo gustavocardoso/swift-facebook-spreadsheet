@@ -4,22 +4,43 @@ const { GoogleSpreadsheet } = require('google-spreadsheet')
 module.exports = {
   async index(req, res, next) {
     try {
-      const { date_preset = 'today', limit = 10 } = req.query
-      const doc = new GoogleSpreadsheet(`${process.env.GOOGLE_SPREADSHEET_ID}`)
+      const { date_preset = 'today', limit = 100 } = req.query
+      const adsDoc = new GoogleSpreadsheet(`${process.env.GOOGLE_SPREADSHEET_ID}`)
+      const leadsDoc = new GoogleSpreadsheet(`${process.env.GOOGLE_LEADS_SPREADSHEET_ID}`)
 
-      await doc.useServiceAccountAuth({
+      await adsDoc.useServiceAccountAuth({
         client_email: process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL,
         private_key: process.env.GOOGLE_PRIVATE_KEY.replace(new RegExp('\\\\n', 'g'), '\n')
       })
 
-      await doc.loadInfo() // loads document properties and worksheets
+      await leadsDoc.useServiceAccountAuth({
+        client_email: process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL,
+        private_key: process.env.GOOGLE_PRIVATE_KEY.replace(new RegExp('\\\\n', 'g'), '\n')
+      })
 
-      await doc.updateProperties({ title: 'Swift - Facebook ADs Insights' })
+      // loads document properties and worksheets
+      await adsDoc.loadInfo()
+      await leadsDoc.loadInfo()
 
-      const sheet = doc.sheetsByIndex[0] // or use doc.sheetsById[id] or doc.sheetsByTitle[title]
+      // // set new sheet
+      // const newSheet = await adsDoc.addSheet({ title: 'Leads' })
+
+      // set the spreadsheet title
+      await adsDoc.updateProperties({ title: 'Swift - Facebook ADs Insights' })
+
+      // get the general sheet by index
+      const sheet = adsDoc.sheetsByIndex[0] // or use adsDoc.sheetsById[id] or adsDoc.sheetsByTitle[title]
+
+      // get the leads sheet by index
+      const leadSheet = adsDoc.sheetsByIndex[1]
+
+      // get Zapier leads sheet
+      const zapierLeadSheet = leadsDoc.sheetsByIndex[0]
 
       sheet.updateProperties({ title: 'General' })
+      leadSheet.updateProperties({ title: 'Leads' })
 
+      // get data from Facebook
       const response = await axios.get(
         `https://graph.facebook.com/v9.0/act_502570590155794/insights?access_token=${process.env.FACEBOOK_API_ACCESS_TOKEN}&date_preset=${date_preset}&level=ad&fields=account_name,campaign_name,adset_name,ad_name,campaign_id,adset_id,ad_id,reach,impressions,spend,inline_link_clicks,inline_link_click_ctr,cost_per_inline_link_click,actions,cost_per_action_type&limit=${limit}&filtering=[{field: "action_type",operator:"IN", value: ["lead"]}]`
       )
@@ -47,10 +68,10 @@ module.exports = {
 
         await sheet.setHeaderRow(headers)
 
-        let rows = []
+        let adsRows = []
 
         data.forEach(async (item, index) => {
-          rows.push([
+          adsRows.push([
             item.campaign_name,
             item.adset_name,
             item.ad_name,
@@ -67,7 +88,7 @@ module.exports = {
           ])
         })
 
-        await sheet.addRows(rows, { raw: true })
+        await sheet.addRows(adsRows, { raw: true })
 
         await sheet.loadCells('A1:P1')
 
@@ -108,6 +129,70 @@ module.exports = {
         await sheet.updateDimensionProperties('rows', { pixelSize: 30 }, {})
 
         await sheet.saveUpdatedCells()
+
+        // get all the rows from Zapier leads sheet
+        const leadsData = await zapierLeadSheet.getRows()
+
+        await leadSheet.clear()
+
+        let leadsHeaders = [
+          'FIRST NAME',
+          'LAST NAME',
+          'E-MAIL',
+          'PHONE',
+          'ADSET NAME',
+          'ADSET ID',
+          'COST PER RESULT'
+        ]
+
+        // set lead sheet headers
+        await leadSheet.setHeaderRow(leadsHeaders)
+
+        await leadSheet.loadCells('A1:G1')
+
+        const la1 = await leadSheet.getCell(0, 0)
+        const lb1 = await leadSheet.getCell(0, 1)
+        const lc1 = await leadSheet.getCell(0, 2)
+        const ld1 = await leadSheet.getCell(0, 3)
+        const le1 = await leadSheet.getCell(0, 4)
+        const lf1 = await leadSheet.getCell(0, 5)
+        const lg1 = await leadSheet.getCell(0, 6)
+
+        la1.textFormat = { bold: true }
+        lb1.textFormat = { bold: true }
+        lc1.textFormat = { bold: true }
+        ld1.textFormat = { bold: true }
+        le1.textFormat = { bold: true }
+        lf1.textFormat = { bold: true }
+        lg1.textFormat = { bold: true }
+
+        await leadSheet.updateDimensionProperties('rows', { pixelSize: 30 }, {})
+
+        await leadSheet.saveUpdatedCells()
+
+        let leadsRows = []
+
+        leadsData.forEach(item => {
+          //get cost per lead
+          const adSetIdRow = adsRows.filter(row => row[4] == item['adset_id'])
+          let costPerLead = ''
+
+          if (adSetIdRow[0] != undefined) {
+            costPerLead = adSetIdRow[0][12]
+          }
+
+          leadsRows.push([
+            item['First Name'],
+            item['Last Name'],
+            item['Email'],
+            item['Phone'],
+            item['Ad Set Name'],
+            item['adset_id'],
+            costPerLead
+          ])
+        })
+
+        await leadSheet.addRows(leadsRows, { raw: true })
 
         res.json({ success: true })
       }
