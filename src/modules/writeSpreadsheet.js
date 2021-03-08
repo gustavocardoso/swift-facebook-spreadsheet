@@ -164,7 +164,7 @@ const writeLeadsSpreadsheet = async (leadSheet, leadSheetData, adsRows, leadsRow
       item['ad_id'],
       costPerLead,
       costPerLeadAd,
-      item['created time'].split(' ')[0]
+      new Date().toISOString().slice(0, 10)
     ])
   })
 
