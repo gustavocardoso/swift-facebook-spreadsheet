@@ -223,7 +223,7 @@ const writeLeadsBackupSpreadsheet = async (leadSheetDataBkp, leadSheetData) => {
       item['Ad Set Name'],
       item['adset_id'],
       item['ad_id'],
-      item['created time'].split(' ')[0]
+      new Date().toISOString().slice(0, 10)
     ])
   })
 
