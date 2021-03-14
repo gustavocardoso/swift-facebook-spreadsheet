@@ -46,7 +46,7 @@ module.exports = {
 
       let date = new Date()
 
-      date.setDate(date.getDate() - 8)
+      date.setDate(date.getDate() - 7)
 
       const dateLimitYear = date.getFullYear()
       const dateLimitDay = date.getDate() > 9 ? date.getDate() : `0${date.getDate()}`
