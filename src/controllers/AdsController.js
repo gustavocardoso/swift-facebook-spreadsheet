@@ -4,7 +4,8 @@ const {
   writeGeneralSpreadsheet,
   writeLeadsSpreadsheet,
   writeLeadsBackupSpreadsheet,
-  deleteLeadsSpreadsheet
+  deleteLeadsSpreadsheet,
+  rebuildLeadsSpreadsheet
 } = require('../modules/writeSpreadsheet')
 
 module.exports = {
@@ -28,6 +29,39 @@ module.exports = {
 
         res.json({ success: true })
       }
+    } catch (error) {
+      console.log(error)
+      res.json({ success: false, error })
+    }
+  },
+
+  async clean(req, res) {
+    try {
+      // connect to Google Spreadsheets
+      const adsDoc = await spreadsheetConnect()
+      // get spreadsheets
+      const { leadSheet } = await setSheets(adsDoc)
+
+      const leadsDeleteData = await leadSheet.getRows()
+
+      let date = new Date()
+
+      date.setDate(date.getDate() - 7)
+
+      const dateLimitYear = date.getFullYear()
+      const dateLimitDay = date.getDate() > 9 ? date.getDate() : `0${date.getDate()}`
+      const dateLimitMonth =
+        date.getUTCMonth() + 1 > 9 ? date.getUTCMonth() + 1 : `0${date.getUTCMonth() + 1}`
+      const dateLimit = `${dateLimitYear}-${dateLimitMonth}-${dateLimitDay}`
+      const dateLimitMiliSeconds = Date.parse(dateLimit)
+
+      const leadsToKeep = leadsDeleteData.filter(
+        item => Date.parse(item['CREATED AT']) > dateLimitMiliSeconds
+      )
+
+      await rebuildLeadsSpreadsheet(leadSheet, leadsToKeep)
+
+      res.json({ success: true })
     } catch (error) {
       console.log(error)
       res.json({ success: false, error })

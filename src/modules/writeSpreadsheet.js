@@ -171,6 +171,74 @@ const writeLeadsSpreadsheet = async (leadSheet, leadSheetData, adsRows, leadsRow
   await leadSheet.addRows(leadsRows, { raw: true })
 }
 
+const rebuildLeadsSpreadsheet = async (leadSheet, leadsData) => {
+  await leadSheet.clear()
+
+  let leadsRows = []
+  let leadsHeaders = [
+    'FIRST NAME',
+    'LAST NAME',
+    'E-MAIL',
+    'PHONE',
+    'ADSET NAME',
+    'ADSET ID',
+    'AD ID',
+    'COST PER RESULT AD SET',
+    'COST PER RESULT AD',
+    'CREATED AT'
+  ]
+
+  // set lead sheet headers
+  await leadSheet.setHeaderRow(leadsHeaders)
+
+  await leadSheet.loadCells('A1:J1')
+
+  const la1 = await leadSheet.getCell(0, 0)
+  const lb1 = await leadSheet.getCell(0, 1)
+  const lc1 = await leadSheet.getCell(0, 2)
+  const ld1 = await leadSheet.getCell(0, 3)
+  const le1 = await leadSheet.getCell(0, 4)
+  const lf1 = await leadSheet.getCell(0, 5)
+  const lg1 = await leadSheet.getCell(0, 6)
+  const lh1 = await leadSheet.getCell(0, 7)
+  const li1 = await leadSheet.getCell(0, 8)
+  const lj1 = await leadSheet.getCell(0, 9)
+
+  la1.textFormat = { bold: true }
+  lb1.textFormat = { bold: true }
+  lc1.textFormat = { bold: true }
+  ld1.textFormat = { bold: true }
+  le1.textFormat = { bold: true }
+  lf1.textFormat = { bold: true }
+  lg1.textFormat = { bold: true }
+  lh1.textFormat = { bold: true }
+  li1.textFormat = { bold: true }
+  lj1.textFormat = { bold: true }
+
+  await leadSheet.updateDimensionProperties('rows', { pixelSize: 30 }, {})
+
+  await leadSheet.saveUpdatedCells()
+
+  leadsData.forEach((item, index) => {
+    leadsRows.push([
+      item['FIRST NAME'],
+      item['LAST NAME'],
+      item['E-MAIL'],
+      item['PHONE'],
+      item['ADSET NAME'],
+      item['ADSET ID'],
+      item['AD ID'],
+      item['COST PER RESULT AD SET'],
+      item['COST PER RESULT AD'],
+      item['CREATED AT']
+    ])
+  })
+
+  console.log(leadsRows)
+
+  await leadSheet.addRows(leadsRows, { raw: true })
+}
+
 const writeLeadsBackupSpreadsheet = async (leadSheetDataBkp, leadSheetData) => {
   // get all the rows from Zapier leads sheet
   const leadsData = await leadSheetData.getRows()
@@ -254,5 +322,6 @@ module.exports = {
   writeGeneralSpreadsheet,
   writeLeadsSpreadsheet,
   writeLeadsBackupSpreadsheet,
-  deleteLeadsSpreadsheet
+  deleteLeadsSpreadsheet,
+  rebuildLeadsSpreadsheet
 }
