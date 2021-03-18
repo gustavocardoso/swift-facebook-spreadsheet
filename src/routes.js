@@ -6,6 +6,8 @@ const routes = Router()
 
 routes.get('/ads', AdsController.index)
 
+routes.get('/ads/leads', AdsController.leads)
+
 routes.get('/ads/cleanup', AdsController.clean)
 
 module.exports = routes

@@ -28,9 +28,9 @@ const setSheets = async adsDoc => {
   const leadSheetDataBkp = adsDoc.sheetsByIndex[3]
 
   // get the leads delete test
-  const leadSheetDelete = adsDoc.sheetsByIndex[4]
+  const leadSheetTest = adsDoc.sheetsByIndex[4]
 
-  return { sheet, leadSheet, leadSheetData, leadSheetDataBkp, leadSheetDelete }
+  return { sheet, leadSheet, leadSheetData, leadSheetDataBkp, leadSheetTest }
 }
 
 module.exports = { spreadsheetConnect, setSheets }

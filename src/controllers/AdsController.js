@@ -9,13 +9,30 @@ const {
 } = require('../modules/writeSpreadsheet')
 
 module.exports = {
-  async index(req, res, next) {
+  async index(req, res) {
+    let data = false
+    let adsRows = []
+    const adsDoc = await spreadsheetConnect() // connect to Google Spreadsheets
+    const { sheet, leadSheetTest } = await setSheets(adsDoc) // get spreadsheets
+
+    while (!data) {
+      try {
+        data = await getFacebookData(req.query) // get data from Facebook
+      } catch (error) {
+        console.log(error)
+      }
+    }
+
+    if (data) {
+      await writeGeneralSpreadsheet(leadSheetTest, data, adsRows)
+      res.json({ success: true })
+    }
+  },
+
+  async leads(req, res) {
     try {
-      // connect to Google Spreadsheets
       const adsDoc = await spreadsheetConnect()
-      // get spreadsheets
       const { sheet, leadSheet, leadSheetData, leadSheetDataBkp } = await setSheets(adsDoc)
-      // get data from Facebook
       const data = await getFacebookData(req.query)
       let adsRows = []
       let leadsRows = []
@@ -37,11 +54,8 @@ module.exports = {
 
   async clean(req, res) {
     try {
-      // connect to Google Spreadsheets
       const adsDoc = await spreadsheetConnect()
-      // get spreadsheets
       const { leadSheet } = await setSheets(adsDoc)
-
       const leadsDeleteData = await leadSheet.getRows()
 
       let date = new Date()
