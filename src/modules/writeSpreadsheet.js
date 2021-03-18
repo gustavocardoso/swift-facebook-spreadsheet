@@ -88,6 +88,8 @@ const writeLeadsSpreadsheet = async (leadSheet, leadSheetData, adsRows, leadsRow
   // get all the rows from Zapier leads sheet
   const leadsData = await leadSheetData.getRows()
 
+  // console.log('ADSROWS:', adsRows)
+
   let leadsHeaders = [
     'FIRST NAME',
     'LAST NAME',
@@ -134,13 +136,13 @@ const writeLeadsSpreadsheet = async (leadSheet, leadSheetData, adsRows, leadsRow
 
   leadsData.forEach((item, index) => {
     //get cost per lead
-    const adSetIdRow = adsRows.filter(row => row[4] == item['adset_id'])
-    const adIdRow = adsRows.filter(row => row[5] == item['ad_id'])
-    let costPerLead = ''
-    let costPerLeadAd = adIdRow[0]?.[13]
+    const adSetIdRow = adsRows.filter(row => row['ADSET ID'] == item['adset_id'])
+    const adIdRow = adsRows.filter(row => row['AD ID'] == item['ad_id'])
+    let costPerLead = 0
+    let costPerLeadAd = adIdRow[0]?.['COST PER LEAD']
 
     if (adSetIdRow.length === 1) {
-      costPerLead = adIdRow[0]?.[13]
+      costPerLead = adIdRow[0]?.['COST PER LEAD']
     }
 
     if (adSetIdRow.length > 1) {
@@ -148,10 +150,13 @@ const writeLeadsSpreadsheet = async (leadSheet, leadSheetData, adsRows, leadsRow
       let totalCostSpent = 0
 
       adSetIdRow.forEach(adSet => {
-        numberOfLeads = numberOfLeads + (adSet[12] === undefined ? 0 : parseInt(adSet[12], 10))
-        totalCostSpent = totalCostSpent + (adSet[8] === undefined ? 0 : parseFloat(adSet[8]))
-        costPerLead = parseFloat(totalCostSpent / numberOfLeads)
+        numberOfLeads =
+          numberOfLeads + (adSet['LEADS'] === undefined ? 0 : parseInt(adSet['LEADS'], 10))
+        totalCostSpent =
+          totalCostSpent + (adSet['SPEND'] === undefined ? 0 : parseFloat(adSet['SPEND']))
       })
+
+      costPerLead = parseFloat(totalCostSpent / numberOfLeads)
     }
 
     leadsRows.push([

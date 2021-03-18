@@ -13,7 +13,7 @@ module.exports = {
     let data = false
     let adsRows = []
     const adsDoc = await spreadsheetConnect() // connect to Google Spreadsheets
-    const { sheet, leadSheetTest } = await setSheets(adsDoc) // get spreadsheets
+    const { sheet } = await setSheets(adsDoc) // get spreadsheets
 
     while (!data) {
       try {
@@ -24,22 +24,27 @@ module.exports = {
     }
 
     if (data) {
-      await writeGeneralSpreadsheet(leadSheetTest, data, adsRows)
+      await writeGeneralSpreadsheet(sheet, data, adsRows)
       res.json({ success: true })
     }
   },
 
   async leads(req, res) {
+    let data = false
+
     try {
       const adsDoc = await spreadsheetConnect()
       const { sheet, leadSheet, leadSheetData, leadSheetDataBkp } = await setSheets(adsDoc)
-      const data = await getFacebookData(req.query)
-      let adsRows = []
+
+      while (!data) {
+        data = await sheet.getRows()
+      }
+
+      res.json({ sucess: true })
       let leadsRows = []
 
       if (data) {
-        await writeGeneralSpreadsheet(sheet, data, adsRows)
-        await writeLeadsSpreadsheet(leadSheet, leadSheetData, adsRows, leadsRows)
+        await writeLeadsSpreadsheet(leadSheet, leadSheetData, data, leadsRows)
         await writeLeadsBackupSpreadsheet(leadSheetDataBkp, leadSheetData)
 
         await deleteLeadsSpreadsheet(leadSheetData)
