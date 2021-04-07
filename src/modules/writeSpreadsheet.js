@@ -176,6 +176,99 @@ const writeLeadsSpreadsheet = async (leadSheet, leadSheetData, adsRows, leadsRow
   await leadSheet.addRows(leadsRows, { raw: true })
 }
 
+const writeUnbounceLeadsSpreadsheet = async (
+  leadSheet,
+  leadUnbounceSheetData,
+  adsRows,
+  leadsRows
+) => {
+  // get all the rows from Unbounce leads sheet
+  const leadsData = await leadUnbounceSheetData.getRows()
+
+  // console.log('ADSROWS:', adsRows)
+
+  let leadsHeaders = [
+    'FIRST NAME',
+    'LAST NAME',
+    'E-MAIL',
+    'PHONE',
+    'ADSET NAME',
+    'ADSET ID',
+    'AD ID',
+    'COST PER RESULT AD SET',
+    'COST PER RESULT AD',
+    'CREATED AT'
+  ]
+
+  // set lead sheet headers
+  await leadSheet.setHeaderRow(leadsHeaders)
+
+  await leadSheet.loadCells('A1:J1')
+
+  const la1 = await leadSheet.getCell(0, 0)
+  const lb1 = await leadSheet.getCell(0, 1)
+  const lc1 = await leadSheet.getCell(0, 2)
+  const ld1 = await leadSheet.getCell(0, 3)
+  const le1 = await leadSheet.getCell(0, 4)
+  const lf1 = await leadSheet.getCell(0, 5)
+  const lg1 = await leadSheet.getCell(0, 6)
+  const lh1 = await leadSheet.getCell(0, 7)
+  const li1 = await leadSheet.getCell(0, 8)
+  const lj1 = await leadSheet.getCell(0, 9)
+
+  la1.textFormat = { bold: true }
+  lb1.textFormat = { bold: true }
+  lc1.textFormat = { bold: true }
+  ld1.textFormat = { bold: true }
+  le1.textFormat = { bold: true }
+  lf1.textFormat = { bold: true }
+  lg1.textFormat = { bold: true }
+  lh1.textFormat = { bold: true }
+  li1.textFormat = { bold: true }
+  lj1.textFormat = { bold: true }
+
+  await leadSheet.updateDimensionProperties('rows', { pixelSize: 30 }, {})
+
+  await leadSheet.saveUpdatedCells()
+
+  leadsData.forEach(item => {
+    // console.log(item)
+    //get cost per lead
+    const adSetIdRow = adsRows.filter(row => row['ADSET ID'] == item['adset_id'])
+    let numberOfLeads = 0
+    let totalCostSpent = 0
+    let adSetName = null
+
+    if (adSetIdRow.length === 1) {
+      adSetName = adSetIdRow[0]['ADSET NAME']
+      numberOfLeads =
+        adSetIdRow[0]['LEADS'] === undefined ? 0 : parseInt(adSetIdRow[0]['LEADS'], 10)
+      totalCostSpent = adSetIdRow[0]['SPEND'] === undefined ? 0 : parseFloat(adSetIdRow[0]['SPEND'])
+
+      if (numberOfLeads === 0) {
+        costPerLead = 0
+      } else {
+        costPerLead = parseFloat(totalCostSpent / numberOfLeads)
+      }
+    }
+
+    leadsRows.push([
+      item['First Name'],
+      item['Last Name'],
+      item['Email'],
+      item['Phone Number'],
+      adSetName,
+      item['adset_id'],
+      '',
+      costPerLead,
+      '',
+      new Date().toISOString().slice(0, 10)
+    ])
+  })
+
+  await leadSheet.addRows(leadsRows, { raw: true })
+}
+
 const rebuildLeadsSpreadsheet = async (leadSheet, leadsData) => {
   await leadSheet.clear()
 
@@ -323,10 +416,30 @@ const deleteLeadsSpreadsheet = async leadSheetData => {
   await leadSheetData.setHeaderRow(leadsHeaders)
 }
 
+const deleteUnbounceLeadsSpreadsheet = async leadUnbounceSheetData => {
+  await leadUnbounceSheetData.clear()
+
+  let leadsHeaders = [
+    'First Name',
+    'Last Name',
+    'Email',
+    'Phone Number',
+    'Do You Pay Income Tax?',
+    'What Is Your Household Income?',
+    'How Many Times Per Day Do You Administer Insulin?',
+    'adset_id'
+  ]
+
+  // set lead sheet headers
+  await leadUnbounceSheetData.setHeaderRow(leadsHeaders)
+}
+
 module.exports = {
   writeGeneralSpreadsheet,
   writeLeadsSpreadsheet,
+  writeUnbounceLeadsSpreadsheet,
   writeLeadsBackupSpreadsheet,
   deleteLeadsSpreadsheet,
+  deleteUnbounceLeadsSpreadsheet,
   rebuildLeadsSpreadsheet
 }

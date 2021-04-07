@@ -27,11 +27,15 @@ const setSheets = async adsDoc => {
   // get the leads data backup sheet by index
   const leadSheetDataBkp = adsDoc.sheetsByIndex[3]
 
+  // get the leads data backup sheet by index
+  const unbounceSheetData = adsDoc.sheetsByIndex[4]
+
   return {
     sheet,
     leadSheet,
     leadSheetData,
-    leadSheetDataBkp
+    leadSheetDataBkp,
+    unbounceSheetData
   }
 }
 
