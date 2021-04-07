@@ -3,7 +3,6 @@ const getFacebookData = require('../modules/getFacebookData')
 const {
   writeGeneralSpreadsheet,
   writeLeadsSpreadsheet,
-  writeLeadsBackupSpreadsheet,
   deleteLeadsSpreadsheet,
   rebuildLeadsSpreadsheet
 } = require('../modules/writeSpreadsheet')
@@ -44,7 +43,7 @@ module.exports = {
 
       if (data) {
         await writeLeadsSpreadsheet(leadSheet, leadSheetData, data, leadsRows)
-        await writeLeadsBackupSpreadsheet(leadSheetDataBkp, leadSheetData)
+        // await writeLeadsBackupSpreadsheet(leadSheetDataBkp, leadSheetData)
 
         await deleteLeadsSpreadsheet(leadSheetData)
 

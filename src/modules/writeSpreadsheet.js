@@ -438,7 +438,7 @@ module.exports = {
   writeGeneralSpreadsheet,
   writeLeadsSpreadsheet,
   writeUnbounceLeadsSpreadsheet,
-  writeLeadsBackupSpreadsheet,
+  // writeLeadsBackupSpreadsheet,
   deleteLeadsSpreadsheet,
   deleteUnbounceLeadsSpreadsheet,
   rebuildLeadsSpreadsheet
