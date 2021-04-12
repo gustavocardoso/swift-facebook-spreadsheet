@@ -167,8 +167,8 @@ const writeLeadsSpreadsheet = async (leadSheet, leadSheetData, adsRows, leadsRow
       item['Ad Set Name'],
       item['adset_id'],
       item['ad_id'],
-      costPerLead,
-      costPerLeadAd,
+      costPerLead.toFixed(2),
+      costPerLeadAd.toFixed(2),
       new Date().toISOString().slice(0, 10)
     ])
   })
@@ -260,7 +260,7 @@ const writeUnbounceLeadsSpreadsheet = async (
       adSetName,
       item['adset_id'],
       '',
-      costPerLead,
+      costPerLead.toFixed(2),
       '',
       new Date().toISOString().slice(0, 10)
     ])
