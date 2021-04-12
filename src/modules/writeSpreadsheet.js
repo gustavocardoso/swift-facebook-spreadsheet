@@ -139,10 +139,10 @@ const writeLeadsSpreadsheet = async (leadSheet, leadSheetData, adsRows, leadsRow
     const adSetIdRow = adsRows.filter(row => row['ADSET ID'] == item['adset_id'])
     const adIdRow = adsRows.filter(row => row['AD ID'] == item['ad_id'])
     let costPerLead = 0
-    let costPerLeadAd = adIdRow[0]?.['COST PER LEAD']
+    let costPerLeadAd = parseFloat(adIdRow[0]?.['COST PER LEAD']).toFixed(2)
 
     if (adSetIdRow.length === 1) {
-      costPerLead = adIdRow[0]?.['COST PER LEAD']
+      costPerLead = parseFloat(adIdRow[0]?.['COST PER LEAD']).toFixed(2)
     }
 
     if (adSetIdRow.length > 1) {
@@ -156,7 +156,7 @@ const writeLeadsSpreadsheet = async (leadSheet, leadSheetData, adsRows, leadsRow
           totalCostSpent + (adSet['SPEND'] === undefined ? 0 : parseFloat(adSet['SPEND']))
       })
 
-      costPerLead = parseFloat(totalCostSpent / numberOfLeads)
+      costPerLead = parseFloat(totalCostSpent / numberOfLeads).toFixed(2)
     }
 
     leadsRows.push([
@@ -167,8 +167,8 @@ const writeLeadsSpreadsheet = async (leadSheet, leadSheetData, adsRows, leadsRow
       item['Ad Set Name'],
       item['adset_id'],
       item['ad_id'],
-      costPerLead.toFixed(2),
-      costPerLeadAd.toFixed(2),
+      costPerLead,
+      costPerLeadAd,
       new Date().toISOString().slice(0, 10)
     ])
   })
@@ -248,7 +248,7 @@ const writeUnbounceLeadsSpreadsheet = async (
       if (numberOfLeads === 0) {
         costPerLead = 0
       } else {
-        costPerLead = parseFloat(totalCostSpent / numberOfLeads)
+        costPerLead = parseFloat(totalCostSpent / numberOfLeads).toFixed(2)
       }
     }
 
@@ -260,7 +260,7 @@ const writeUnbounceLeadsSpreadsheet = async (
       adSetName,
       item['adset_id'],
       '',
-      costPerLead.toFixed(2),
+      costPerLead,
       '',
       new Date().toISOString().slice(0, 10)
     ])
