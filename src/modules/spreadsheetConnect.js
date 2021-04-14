@@ -30,11 +30,15 @@ const setSheets = async adsDoc => {
   // get the Unbounce data sheet by index
   const unbounceSheetData = adsDoc.sheetsByIndex[3]
 
+  // get the Unbounce sheet by index
+  const unbounceSheet = adsDoc.sheetsByIndex[4]
+
   return {
     sheet,
     leadSheet,
     leadSheetData,
     // leadSheetDataBkp,
+    unbounceSheet,
     unbounceSheetData
   }
 }

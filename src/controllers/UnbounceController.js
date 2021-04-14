@@ -1,5 +1,7 @@
 const { spreadsheetConnect, setSheets } = require('../modules/spreadsheetConnect')
+const getUnbounceData = require('../modules/getUnbounceData')
 const {
+  writeUnbounceSpreadsheet,
   writeUnbounceLeadsSpreadsheet,
   deleteUnbounceLeadsSpreadsheet
 } = require('../modules/writeSpreadsheet')
@@ -7,12 +9,32 @@ const {
 module.exports = {
   async index(req, res) {
     let data = false
-    let leadsRows = []
+    let adsRows = []
     const adsDoc = await spreadsheetConnect()
-    const { sheet, leadSheet, unbounceSheetData } = await setSheets(adsDoc)
+    const { unbounceSheet } = await setSheets(adsDoc)
 
     while (!data) {
-      data = await sheet.getRows()
+      try {
+        data = await getUnbounceData(req.query) // get data from Facebook
+      } catch (error) {
+        console.log(error)
+      }
+    }
+
+    if (data) {
+      await writeUnbounceSpreadsheet(unbounceSheet, data, adsRows)
+      res.json({ success: true })
+    }
+  },
+
+  async leads(req, res) {
+    let data = false
+    let leadsRows = []
+    const adsDoc = await spreadsheetConnect()
+    const { unbounceSheet, leadSheet, unbounceSheetData } = await setSheets(adsDoc)
+
+    while (!data) {
+      data = await unbounceSheet.getRows()
     }
 
     if (data) {

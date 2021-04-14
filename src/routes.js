@@ -10,5 +10,6 @@ routes.get('/ads/leads', AdsController.leads)
 routes.get('/ads/cleanup', AdsController.clean)
 
 routes.get('/unbounce', UnbounceController.index)
+routes.get('/unbounce/leads', UnbounceController.leads)
 
 module.exports = routes
